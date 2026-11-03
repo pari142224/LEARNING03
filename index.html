@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Valuation Calculator | Valuation Pro</title>
+<style>
+:root{--navy:#0b2450;--blue:#1677ff;--light:#f4f7fb;--border:#dfe6f0;--text:#16213a;--muted:#6b7280}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#eef4fb,#f8fafc 42%,#f4f7fb);color:var(--text)}
+.layout{display:grid;grid-template-columns:300px 1fr;min-height:100vh}.sidebar{background:#f8fbff;border-right:1px solid #d9e3f0;padding:25px 20px}.sidebar h2{color:var(--navy);margin:0 0 6px}.muted{color:var(--muted);font-size:13px}
+label{display:block;font-size:13px;font-weight:650;margin:15px 0 6px;color:#34435c}input{width:100%;padding:10px 11px;border:1px solid #cbd5e1;border-radius:9px;background:white;font-size:14px;color:#17243d}
+select{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:9px;background:white}
+main{padding:25px;max-width:1600px;width:100%;margin:auto}.hero{background:linear-gradient(120deg,#08224b,#123f86 55%,#1e6fe8);color:white;border-radius:18px;padding:27px 32px;margin-bottom:18px;box-shadow:0 12px 30px #0a2b5a2e}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.16em;opacity:.8}.hero h1{font-size:clamp(25px,3vw,37px);margin:8px 0}.hero p{margin:0;opacity:.9}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}.metric,.panel{background:white;border:1px solid var(--border);border-radius:15px;padding:18px;box-shadow:0 4px 16px #142d500d}.metric-title{font-size:13px;color:#53617a;font-weight:700}.metric-value{font-size:27px;font-weight:850;color:var(--navy);margin-top:7px}.metric-sub{font-size:12px;color:#7a8496;margin-top:3px}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0}.tab{border:1px solid #d4deeb;background:white;color:#243653;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer}.tab.active{background:var(--navy);color:white;border-color:var(--navy)}.panel{display:none;padding:21px}.panel.active{display:block}.section-title{font-size:19px;font-weight:800;color:#102a55}.section-sub{font-size:13px;color:#758096;margin:5px 0 18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+button.action{border:0;background:#1769d2;color:white;border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer}button.secondary{background:#eaf2ff;color:#16427c;border:1px solid #cfe0fb}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:12px 0}th,td{padding:10px;border-bottom:1px solid #e5eaf1;text-align:left}th{background:#f2f6fb;color:#34435c}td input{min-width:80px;padding:7px}
+.result{background:#eef6ff;border:1px solid #cfe3ff;border-radius:12px;padding:13px;color:#29456e;margin-top:12px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}.stat{background:#f6f8fc;border-radius:10px;padding:13px}.stat b{display:block;color:var(--navy);font-size:19px;margin-top:5px}
+canvas{width:100%;height:300px;display:block}.footer{font-size:12px;color:#718096;margin-top:24px;line-height:1.5}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{border-right:0;border-bottom:1px solid #d9e3f0}.metrics{grid-template-columns:repeat(2,1fr)}main{padding:15px}.grid5{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.metrics,.grid3,.grid2,.stats{grid-template-columns:1fr}.hero{padding:22px}.sidebar{padding:18px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+<h2>🏢 Company Inputs</h2><div class="muted">Enter verified company financial information.</div>
+<label for="company">Company</label><select id="company"><option value="tcs">TCS (Example)</option><option value="custom">Custom Company</option></select>
+<label>Shares outstanding (crore)</label><input id="shares" type="number" min=".01" step="any" value="361.81">
+<label>Cash + investments (₹ crore)</label><input id="cash" type="number" min="0" step="any" value="50079">
+<label>Interest-bearing debt (₹ crore)</label><input id="debt" type="number" min="0" step="any" value="0">
+<label>Base-year FCF (₹ crore)</label><input id="fcf" type="number" min="0" step="any" value="48424">
+<label>Market price (₹/share)</label><input id="market" type="number" min="0" step="any" value="2200.80">
+<hr style="border:0;border-top:1px solid #dbe3ee;margin:22px 0">
+<b>🔗 Quick Links</b><p class="muted">TCS Investor Relations<br>Annual Report<br>NSE / BSE filing</p>
+<div class="result">Educational tool only. Verify all inputs from primary filings.</div>
+</aside>
+<main>
+<header class="hero"><div class="eyebrow">TURN DATA INTO VALUE</div><h1>Business Valuation Calculator</h1><p>DCF • Comparable Companies • Precedent Transactions • Asset-Based Valuation</p></header>
+<section class="metrics" id="topMetrics"></section>
+<nav class="tabs">
+<button class="tab active" data-tab="dcf">📊 DCF</button><button class="tab" data-tab="comps">🏢 Comparable Companies</button><button class="tab" data-tab="transactions">🤝 Precedent Transactions</button><button class="tab" data-tab="assets">🏦 Asset-Based</button><button class="tab" data-tab="summary">📋 Summary</button>
+</nav>
+<section class="panel active" id="dcf">
+<div class="section-title">1. Discounted Cash Flow (DCF) Valuation</div><div class="section-sub">FCFF/FCF-based simplified DCF. Adjust the assumptions below.</div>
+<div class="grid3"><div><label>Base-year FCF (₹ crore)</label><input id="dcfBase" type="number" value="48424" step="any"></div><div><label>WACC (%)</label><input id="wacc" type="number" value="10.02" min=".1" max="50" step=".01"></div><div><label>Terminal growth (%)</label><input id="terminalGrowth" type="number" value="3.50" min="0" max="9.9" step=".01"></div></div>
+<label>Annual forecast growth (%)</label><div class="grid5" id="growthInputs"></div>
+<div class="grid2" style="margin-top:18px"><div><div id="fcfTable"></div></div><div><canvas id="fcfChart" width="650" height="300"></canvas></div></div>
+<div class="result" id="dcfSummary"></div>
+</section>
+<section class="panel" id="comps"><div class="section-title">2. Comparable Companies</div><div class="section-sub">Edit peer multiples; median EV/EBITDA is applied to company EBITDA.</div><div id="peerTable"></div><button class="action secondary" onclick="addRow('peer')">+ Add peer</button><div class="stats" id="compStats"></div></section>
+<section class="panel" id="transactions"><div class="section-title">3. Precedent Transactions</div><div class="section-sub">Edit transaction multiples; median EV/EBITDA is applied to company EBITDA.</div><div id="txTable"></div><button class="action secondary" onclick="addRow('tx')">+ Add transaction</button><div class="stats" id="txStats"></div></section>
+<section class="panel" id="assets"><div class="section-title">4. Asset-Based Valuation</div><div class="section-sub">Net asset value adjusted for any fair-value adjustment.</div><div class="grid3"><div><label>Total assets (₹ crore)</label><input id="assetsInput" type="number" value="182372" step="any"></div><div><label>Total liabilities (₹ crore)</label><input id="liabilitiesInput" type="number" value="75800" step="any"></div><div><label>Fair-value adjustment (₹ crore)</label><input id="adjustment" type="number" value="0" step="any"></div></div><div class="stats" id="assetStats"></div></section>
+<section class="panel" id="summary"><div class="section-title">Valuation Summary</div><div class="section-sub">Comparison of the four valuation methods.</div><div id="summaryTable"></div><canvas id="summaryChart" width="900" height="380"></canvas><button class="action" onclick="downloadCSV()">⬇️ Download valuation summary (CSV)</button></section>
+<div class="footer">Educational valuation tool. Verify financial data, accounting definitions, peer selection and assumptions independently before using outputs. This calculator is not investment advice or a formal valuation report.</div>
+</main></div>
+<script>
+const presets={tcs:{shares:361.81,cash:50079,debt:0,fcf:48424,market:2200.80,ebitda:76800,assets:182372,liabilities:75800},custom:{shares:100,cash:1000,debt:500,fcf:900,market:0,ebitda:1500,assets:12000,liabilities:7000}};
+let peers=[['Infosys',9.7],['HCLTech',11.7],['Wipro',7.6],['Tech Mahindra',10.0]],txs=[['Transaction A',8.8],['Transaction B',10.4],['Transaction C',9.5],['Transaction D',11.0]],latest={};
+const $=id=>document.getElementById(id),num=id=>Number($(id).value)||0,fmt=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0}),fmt2=n=>Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});
+function setPreset(){let p=presets[$('company').value];for(let k of ['shares','cash','debt','fcf','market'])$(k).value=p[k];$('dcfBase').value=p.fcf;$('assetsInput').value=p.assets;$('liabilitiesInput').value=p.liabilities;render()}
+$('company').addEventListener('change',setPreset);
+for(let i=0;i<5;i++){let d=document.createElement('div');d.innerHTML=`<label>Year ${i+1} growth (%)</label><input id="g${i}" type="number" step=".1" value="${[5,7,6,5,4][i]}">`;$('growthInputs').appendChild(d)}
+function tableRows(type){let arr=type==='peer'?peers:txs;let target=type==='peer'?'peerTable':'txTable';$(target).innerHTML=`<table><thead><tr><th>${type==='peer'?'Peer':'Transaction'}</th><th>EV/EBITDA (x)</th><th></th></tr></thead><tbody>${arr.map((r,i)=>`<tr><td><input value="${r[0]}" onchange="${type}[${i}][0]=this.value;render()"> </td><td><input type="number" step=".1" value="${r[1]}" onchange="${type}[${i}][1]=Number(this.value);render()"></td><td><button class="action secondary" onclick="removeRow('${type}',${i})">×</button></td></tr>`).join('')}</tbody></table>`}
+function addRow(type){(type==='peer'?peers:txs).push([type==='peer'?'New peer':'New transaction',0]);render()}
+function removeRow(type,i){(type==='peer'?peers:txs).splice(i,1);render()}
+function median(a){let x=a.filter(Number.isFinite).sort((a,b)=>a-b);if(!x.length)return 0;let m=Math.floor(x.length/2);return x.length%2?x[m]:(x[m-1]+x[m])/2}
+function stat(label,value){return `<div class="stat"><span class="muted">${label}</span><b>${value}</b></div>`}
+function drawBars(canvasId,labels,values,title,reference=null){let c=$(canvasId),ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#243653';ctx.font='bold 16px Arial';ctx.fillText(title,18,24);let max=Math.max(1,...values.map(Math.abs),reference||0)*1.18,base=h-45,top=52,plotH=base-top,barW=Math.min(90,(w-70)/(values.length*1.6)),gap=(w-50-values.length*barW)/(values.length*2);ctx.strokeStyle='#dbe3ee';ctx.beginPath();ctx.moveTo(35,base);ctx.lineTo(w-15,base);ctx.stroke();values.forEach((v,i)=>{let x=35+gap+i*(barW+2*gap),bh=Math.abs(v)/max*plotH;ctx.fillStyle='#2673d9';ctx.fillRect(x,base-bh,barW,bh);ctx.fillStyle='#26364f';ctx.font='12px Arial';ctx.textAlign='center';ctx.fillText(fmt(v),x+barW/2,Math.max(top+12,base-bh-7));ctx.fillText(labels[i],x+barW/2,base+18)});if(reference!==null){let y=base-reference/max*plotH;ctx.setLineDash([6,4]);ctx.strokeStyle='#d34b58';ctx.beginPath();ctx.moveTo(30,y);ctx.lineTo(w-12,y);ctx.stroke();ctx.setLineDash([]);ctx.textAlign='right';ctx.fillStyle='#b43a48';ctx.fillText('Market '+fmt(reference),w-15,y-6)}}
+function render(){let shares=Math.max(.000001,num('shares')),cash=num('cash'),debt=num('debt'),fcf=num('fcf'),ebitda=presets[$('company').value].ebitda;
+let base=num('dcfBase'),wacc=num('wacc')/100,tg=num('terminalGrowth')/100,prev=base,fcfs=[],pvs=[];
+for(let i=0;i<5;i++){let g=num('g'+i)/100;prev*=1+g;fcfs.push(prev);pvs.push(prev/Math.pow(1+wacc,i+1))}
+let tv=wacc>tg?fcfs[4]*(1+tg)/(wacc-tg):NaN,pvtv=tv/Math.pow(1+wacc,5),ev=pvs.reduce((a,b)=>a+b,0)+pvtv,eq=ev+cash-debt,dcf=eq/shares;
+let cm=median(peers.map(x=>Number(x[1]))),cev=ebitda*cm,ceq=cev+cash-debt,cps=ceq/shares;
+let tm=median(txs.map(x=>Number(x[1]))),tev=ebitda*tm,teq=tev+cash-debt,tps=teq/shares;
+let nav=num('assetsInput')-num('liabilitiesInput')+num('adjustment'),nps=nav/shares,market=num('market');
+latest={dcf,comps:cps,transactions:tps,assets:nps,market};
+$('topMetrics').innerHTML=[['DCF Value / Share',dcf,'Based on discounted cash flow'],['Comparable Value / Share',cps,'Based on peer multiples'],['Transaction Value / Share',tps,'Based on M&A multiples'],['Asset-Based Value / Share',nps,'Based on net assets']].map(x=>`<div class="metric"><div class="metric-title">${x[0]}</div><div class="metric-value">${fmt(x[1])}</div><div class="metric-sub">${x[2]}</div></div>`).join('');
+$('fcfTable').innerHTML=`<table><thead><tr><th>Year</th><th>Growth %</th><th>FCF (₹ cr)</th><th>PV (₹ cr)</th></tr></thead><tbody>${fcfs.map((f,i)=>`<tr><td>${i+1}</td><td>${fmt2(num('g'+i))}%</td><td>${fmt2(f)}</td><td>${fmt2(pvs[i])}</td></tr>`).join('')}</tbody></table>`;
+$('dcfSummary').innerHTML=`<b>DCF Summary</b><br>Present Value of FCF: ${fmt(pvs.reduce((a,b)=>a+b,0))} cr<br>PV of Terminal Value: ${fmt(pvtv)} cr<br>Enterprise Value: ${fmt(ev)} cr<br>Cash & Investments: ${fmt(cash)} cr &nbsp; | &nbsp; Debt: ${fmt(debt)} cr<br><b>Equity Value: ${fmt(eq)} cr &nbsp; | &nbsp; Value / Share: ${fmt(dcf)}</b>${wacc<=tg?'<br><b>Warning:</b> WACC must be greater than terminal growth.':''}`;
+drawBars('fcfChart',['Y1','Y2','Y3','Y4','Y5'],fcfs,'Forecast FCF (₹ crore)');
+tableRows('peer');$('compStats').innerHTML=stat('Median EV/EBITDA',fmt2(cm)+'x')+stat('Equity Value',fmt(ceq)+' cr')+stat('Value / Share',fmt(cps));
+tableRows('tx');$('txStats').innerHTML=stat('Median transaction multiple',fmt2(tm)+'x')+stat('Equity Value',fmt(teq)+' cr')+stat('Value / Share',fmt(tps));
+$('assetStats').innerHTML=stat('Net Asset Value',fmt(nav)+' cr')+stat('Value / Share',fmt(nps));
+let rows=[['DCF',dcf],['Comparable Companies',cps],['Precedent Transactions',tps],['Asset-Based',nps]];
+$('summaryTable').innerHTML=`<table><thead><tr><th>Method</th><th>Value / Share</th>${market>0?'<th>vs Market %</th>':''}</tr></thead><tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td>${fmt(r[1])}</td>${market>0?`<td>${((r[1]/market-1)*100).toFixed(1)}%</td>`:''}</tr>`).join('')}</tbody></table>`;
+drawBars('summaryChart',rows.map(r=>r[0]),rows.map(r=>r[1]),'Four-Model Valuation Comparison',market>0?market:null);
+}
+function downloadCSV(){let lines=['Method,Value / Share,vs Market %'];for(let [k,v] of [['DCF',latest.dcf],['Comparable Companies',latest.comps],['Precedent Transactions',latest.transactions],['Asset-Based',latest.assets]])lines.push(`${k},${v},${latest.market>0?(v/latest.market-1)*100:''}`);let blob=new Blob([lines.join('\\n')],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='valuation_summary.csv';a.click();URL.revokeObjectURL(a.href)}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab,.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active')}));
+document.querySelectorAll('input').forEach(i=>i.addEventListener('input',render));
+render();
+</script>
+</body>
+</html>
