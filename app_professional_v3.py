@@ -117,8 +117,8 @@ PRESETS = {
 }
 
 # ---------- Sidebar ----------
-st.sidebar.markdown("## 🏢 Company Inputs")
-st.sidebar.caption("Enter verified company financial information.")
+st.sidebar.markdown("## 🏢 Company Important Inputs")
+st.sidebar.caption("Enter verified company financial information and Data.")
 
 company = st.sidebar.selectbox("Company", list(PRESETS.keys()))
 p = PRESETS[company]
